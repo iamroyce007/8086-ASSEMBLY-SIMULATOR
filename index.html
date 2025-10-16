@@ -7,186 +7,40 @@
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #000000; /* Black background */
-  --panel: #0a0a0a; /* Darker black for panels */
-  --muted: #00ff00; /* Bright green for text */
-  --accent: #00cc00; /* Slightly darker green for buttons */
-  --accent2: #00ff66; /* Lighter green for gradient */
-  --card: #0a0a0a; /* Dark panel for cards */
-  --glow: #00ff00; /* Green glow for effects */
+  --bg: #000000;
+  --panel: #0a0a0a;
+  --muted: #00ff00;
+  --accent: #00cc00;
+  --accent2: #00ff66;
+  --card: #0a0a0a;
+  --glow: #00ff00;
 }
-* {
-  box-sizing: border-box;
-}
-html, body {
-  height: 100%;
-  margin: 0;
-  font-family: 'VT323', ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-  color: var(--muted);
-  background: var(--bg);
-}
-.container {
-  max-width: 1180px;
-  margin: 20px auto;
-  padding: 18px;
-  display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 16px;
-}
-.header {
-  grid-column: 1/-1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 0; /* Sharp edges for blocky look */
-  background: var(--accent);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  color: var(--bg);
-  text-shadow: 0 0 5px var(--glow);
-}
-h1 {
-  font-size: 18px; /* Slightly larger for emphasis */
-  margin: 0;
-  text-shadow: 0 0 3px var(--glow);
-}
-.card {
-  background: var(--card);
-  border: 1px solid var(--accent);
-  padding: 12px;
-  border-radius: 0; /* Sharp edges */
-  box-shadow: 0 0 10px var(--glow);
-}
-.editor {
-  height: 420px;
-  display: flex;
-  flex-direction: column;
-}
-textarea.code {
-  flex: 1;
-  width: 100%;
-  resize: none;
-  background: var(--bg);
-  border: 1px solid var(--accent);
-  padding: 10px;
-  border-radius: 0;
-  color: var(--muted);
-  font-family: 'VT323', ui-monospace, monospace;
-  font-size: 16px; /* Larger for readability */
-  text-shadow: 0 0 2px var(--glow);
-}
-.controls {
-  display: flex;
-  gap: 8px;
-  margin-top: 8px;
-}
-.btn {
-  background: var(--accent);
-  border: 1px solid var(--accent2);
-  padding: 8px 10px;
-  border-radius: 0;
-  color: var(--bg);
-  font-weight: 600;
-  cursor: pointer;
-  text-shadow: 0 0 3px var(--glow);
-}
-.btn:hover {
-  background: var(--accent2);
-  box-shadow: 0 0 5px var(--glow);
-}
-.btn.ghost {
-  background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--muted);
-}
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.small {
-  font-size: 14px; /* Slightly larger */
-  color: var(--muted);
-  text-shadow: 0 0 2px var(--glow);
-}
-.panel {
-  padding: 10px;
-  border-radius: 0;
-  background: var(--panel);
-  border: 1px solid var(--accent);
-  box-shadow: 0 0 5px var(--glow);
-}
-.row {
-  display: flex;
-  gap: 8px;
-}
-.regs {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-}
-.reg {
-  padding: 6px;
-  border-radius: 0;
-  background: var(--bg);
-  border: 1px solid var(--accent);
-  font-family: 'VT323', ui-monospace, monospace;
-  text-shadow: 0 0 2px var(--glow);
-}
-.console {
-  height: 140px;
-  overflow: auto;
-  font-family: 'VT323', ui-monospace, monospace;
-  background: var(--bg);
-  border: 1px solid var(--accent);
-  padding: 8px;
-  border-radius: 0;
-  color: var(--muted);
-  text-shadow: 0 0 2px var(--glow);
-}
-label {
-  font-size: 14px;
-  color: var(--muted);
-}
-.switch {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-}
-.morseBox {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.morseArea {
-  width: 100%;
-  height: 120px;
-  padding: 8px;
-  border-radius: 0;
-  background: var(--bg);
-  border: 1px solid var(--accent);
-  font-family: 'VT323', ui-monospace, monospace;
-  color: var(--muted);
-  text-shadow: 0 0 2px var(--glow);
-}
-.footerNote {
-  grid-column: 1/-1;
-  color: var(--muted);
-  font-size: 14px;
-  margin-top: 8px;
-  text-shadow: 0 0 2px var(--glow);
-}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; font-family: 'VT323', monospace; color: var(--muted); background: var(--bg); }
+.container { max-width: 1180px; margin: 20px auto; padding: 18px; display: grid; grid-template-columns: 1fr 420px; gap: 16px; }
+.header { grid-column: 1/-1; display: flex; align-items: center; justify-content: space-between; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo { width: 44px; height: 44px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--bg); text-shadow: 0 0 5px var(--glow); }
+h1 { font-size: 18px; margin: 0; text-shadow: 0 0 3px var(--glow); }
+.card { background: var(--card); border: 1px solid var(--accent); padding: 12px; border-radius: 0; box-shadow: 0 0 10px var(--glow); }
+.editor { height: 420px; display: flex; flex-direction: column; }
+textarea.code { flex: 1; width: 100%; resize: none; background: var(--bg); border: 1px solid var(--accent); padding: 10px; color: var(--muted); font-family: 'VT323', monospace; font-size: 16px; text-shadow: 0 0 2px var(--glow); }
+.controls { display: flex; gap: 8px; margin-top: 8px; }
+.btn { background: var(--accent); border: 1px solid var(--accent2); padding: 8px 10px; border-radius: 0; color: var(--bg); font-weight: 600; cursor: pointer; text-shadow: 0 0 3px var(--glow); }
+.btn:hover { background: var(--accent2); box-shadow: 0 0 5px var(--glow); }
+.btn.ghost { background: transparent; border: 1px solid var(--accent); color: var(--muted); }
+.side { display: flex; flex-direction: column; gap: 12px; }
+.small { font-size: 14px; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
+.panel { padding: 10px; border-radius: 0; background: var(--panel); border: 1px solid var(--accent); box-shadow: 0 0 5px var(--glow); }
+.row { display: flex; gap: 8px; }
+.regs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.reg { padding: 6px; border-radius: 0; background: var(--bg); border: 1px solid var(--accent); font-family: 'VT323', monospace; text-shadow: 0 0 2px var(--glow); }
+.console { height: 140px; overflow: auto; font-family: 'VT323', monospace; background: var(--bg); border: 1px solid var(--accent); padding: 8px; border-radius: 0; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
+label { font-size: 14px; color: var(--muted); }
+.switch { display: flex; gap: 6px; align-items: center; }
+.morseBox { display: flex; flex-direction: column; gap: 8px; }
+.morseArea { width: 100%; height: 120px; padding: 8px; border-radius: 0; background: var(--bg); border: 1px solid var(--accent); font-family: 'VT323', monospace; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
+.footerNote { grid-column: 1/-1; color: var(--muted); font-size: 14px; margin-top: 8px; text-shadow: 0 0 2px var(--glow); }
 </style>
 </head>
 <body>
@@ -204,28 +58,59 @@ label {
     </div>
   </div>
 
-  <!-- Left: editor + morse -->
   <div>
     <div class="card editor">
       <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:6px">
-        <div>
-          <label class="small">Assembly editor / Morse input</label>
-        </div>
+        <div><label class="small">Assembly editor / Morse input</label></div>
         <div class="row">
           <button class="btn" id="assembleBtn">Assemble & Run</button>
           <button class="btn ghost" id="stepBtn">Step</button>
           <button class="btn ghost" id="resetBtn">Reset</button>
         </div>
       </div>
-      <textarea id="code" class="code" spellcheck="false">; Example: simple add and output to console
-MOV AX, 5
-MOV BX, 3
-ADD AX, BX
-OUT AX         ; print AX as number
-
-
-; You can write labels and JMP/CMP/JE/JNE
-; Or paste Morse code into the Morse panel on the right and click "Decode -> Editor"
+      <textarea id="code" class="code" spellcheck="false">; Example: HELLO in Morse
+; . = 46, - = 45, / = 47
+MOV AX,46
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,47
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,47
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,45
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,47
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,45
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,46
+OUT AX
+MOV AX,47
+OUT AX
+MOV AX,45
+OUT AX
+MOV AX,45
+OUT AX
+MOV AX,45
+OUT AX
+HLT
 </textarea>
       <div class="controls">
         <button class="btn ghost" id="compileBtn">Compile (assemble)</button>
@@ -237,7 +122,6 @@ OUT AX         ; print AX as number
     </div>
 
     <div style="height:12px"></div>
-
     <div class="card panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div><label class="small">Console</label></div>
@@ -247,7 +131,6 @@ OUT AX         ; print AX as number
     </div>
   </div>
 
-  <!-- Right: morse + registers + memory -->
   <div class="side">
     <div class="card panel">
       <label class="small">Morse ↔ Text (live)</label>
@@ -259,7 +142,7 @@ OUT AX         ; print AX as number
           <button class="btn ghost" id="pasteToEditor">Decode → Editor</button>
           <button class="btn ghost" id="copyMorse">Copy</button>
         </div>
-        <div class="small">Rules: Letters separated by space, words by <kbd>/</kbd> or double space when using Morse. Press <kbd>Decode → Editor</kbd> to replace editor text with decoded assembly.</div>
+        <div class="small">Letters separated by space, words by <kbd>/</kbd> or double space. Press <kbd>Decode → Editor</kbd> to replace editor text with decoded assembly.</div>
       </div>
     </div>
 
@@ -285,13 +168,12 @@ OUT AX         ; print AX as number
   </div>
 
   <div class="footerNote">
-    Tips: The assembler supports a small subset: MOV, ADD, SUB, INC, DEC, CMP, JMP, JE, JNE, OUT (prints register), HLT, LABELS (e.g. loop:), immediate numbers (decimal) and register names AX,BX,CX,DX. Modify freely. Morse conversion supports A-Z, 0-9 and basic punctuation.
+    Tips: The assembler supports a small subset: MOV, ADD, SUB, INC, DEC, CMP, JMP, JE, JNE, OUT (prints register or Morse symbols), HLT, LABELS, immediate numbers (decimal) and AX,BX,CX,DX.
     <br>Created by Anirudh Ramakrishnan
   </div>
 </div>
 
 <script>
-// --- Morse table ---
 const MORSE = {
   'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..',
   '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.',
@@ -299,7 +181,6 @@ const MORSE = {
 };
 const REV_MORSE = Object.fromEntries(Object.entries(MORSE).map(([k,v]) => [v,k]));
 
-// --- DOM ---
 const codeEl = document.getElementById('code');
 const morseEl = document.getElementById('morseInput');
 const toMorseBtn = document.getElementById('toMorse');
@@ -320,7 +201,6 @@ const speedSlider = document.getElementById('speed');
 const clearConsoleBtn = document.getElementById('clearConsole');
 const downloadBtn = document.getElementById('downloadBtn');
 
-// --- Simple CPU state ---
 let CPU = {
   regs: {AX:0,BX:0,CX:0,DX:0},
   ip:0,
@@ -339,13 +219,11 @@ function resetCPU(){
 resetCPU();
 
 function logConsole(...args){
-  consoleEl.textContent += args.join(' ') + '\n';
+  consoleEl.textContent += args.join('') + '\n';
   consoleEl.scrollTop = consoleEl.scrollHeight;
 }
-
 clearConsoleBtn.onclick = () => {consoleEl.textContent='';}
 
-// --- Morse functions ---
 function textToMorse(text){
   return text.toUpperCase().split(' ').map(word=>{
     return word.split('').map(ch=> MORSE[ch] || '?').join(' ');
@@ -364,7 +242,6 @@ toTextBtn.onclick = ()=>{ morseEl.value = morseToText(morseEl.value); }
 copyMorse.onclick = ()=>{ navigator.clipboard?.writeText(morseEl.value).then(()=>alert('Copied')) }
 pasteToEditor.onclick = ()=>{ codeEl.value = morseToText(morseEl.value); }
 
-// --- Assembler (very small subset) ---
 function tokenizeLine(line){
   line = line.replace(/;.*$/,'').trim();
   if(!line) return null;
@@ -384,9 +261,7 @@ function assembleText(text){
     if(!t) continue;
     if(t.type==='label'){
       labels[t.label] = addr;
-    } else {
-      addr += 1;
-    }
+    } else { addr += 1; }
   }
   for(let i=0;i<lines.length;i++){
     const t = tokenizeLine(lines[i]);
@@ -399,7 +274,6 @@ function assembleText(text){
   return {code,labels};
 }
 
-// --- Execution ---
 function getVal(tok){
   if(typeof tok === 'number') return tok;
   if(/^[0-9]+$/.test(tok)) return parseInt(tok,10);
@@ -427,48 +301,20 @@ function stepInstruction(){
     case 'INC': setReg(a, getVal(a)+1); updateFlagsFrom(getVal(a)); CPU.ip++; break;
     case 'DEC': setReg(a, getVal(a)-1); updateFlagsFrom(getVal(a)); CPU.ip++; break;
     case 'CMP': { const r = getVal(a)-getVal(b); CPU.zf = (r===0); CPU.sf = (r<0); CPU.ip++; } break;
-    case 'JMP': {
-      const target = resolveLabelOrNumber(a);
-      CPU.ip = target; }
-      break;
-    case 'JE': {
-      if(CPU.zf){ CPU.ip = resolveLabelOrNumber(a); } else CPU.ip++; }
-      break;
-    case 'JNE': {
-      if(!CPU.zf){ CPU.ip = resolveLabelOrNumber(a); } else CPU.ip++; }
-      break;
+    case 'JMP': { CPU.ip = resolveLabelOrNumber(a); } break;
+    case 'JE': { if(CPU.zf){ CPU.ip = resolveLabelOrNumber(a); } else CPU.ip++; } break;
+    case 'JNE': { if(!CPU.zf){ CPU.ip = resolveLabelOrNumber(a); } else CPU.ip++; } break;
     case 'OUT': {
       const v = getVal(a);
-      logConsole(String(v)); CPU.ip++; } break;
-    case 'MORSE': { 
-      const match = instr.srcLine.match(/MORSE\s+"([^"]+)"/i);
-      if(match){
-        const text = match[1].toUpperCase();
-        for(const ch of text){
-          const morse = MORSE[ch] || '?';
-          logConsole(`${ch}: ${morse}`);
-        }
+      if(v >= 33 && v <= 126){ // printable ASCII
+        consoleEl.textContent += String.fromCharCode(v);
       } else {
-        logConsole('Error: MORSE expects a string in quotes');
+        consoleEl.textContent += v;
       }
+      consoleEl.scrollTop = consoleEl.scrollHeight;
       CPU.ip++;
     } break;
-    case 'INPUT': {
-      const match = instr.srcLine.match(/INPUT\s+"([^"]+)"/i);
-      if(match){
-        const promptText = match[1];
-        const userInput = prompt(promptText);
-        if(userInput){
-          for(const ch of userInput.toUpperCase()){
-            const morse = MORSE[ch] || '?';
-            logConsole(`${ch}: ${morse}`);
-          }
-        }
-      } else {
-        logConsole('Error: INPUT expects a string prompt in quotes');
-      }
-      CPU.ip++;
-    } break;
+    case 'HLT': CPU.halted=true; CPU.running=false; break;
     default: logConsole('Unknown op:', op); CPU.halted=true; CPU.running=false; break;
   }
   return true;
@@ -490,26 +336,6 @@ function loadProgramFromText(txt){
 assembleBtn.onclick = ()=>{ loadProgramFromText(codeEl.value); runProgram(); }
 compileBtn.onclick = ()=>{ const {code,labels} = assembleText(codeEl.value); alert('Assembled ' + code.length + ' instructions. Labels: '+Object.keys(labels).join(', ')); }
 
-stepBtn.onclick = ()=>{ if(!CPU.code.length) loadProgramFromText(codeEl.value); if(!CPU.halted) { stepInstruction(); updateUI(); } }
-resetBtn.onclick = ()=>{ resetCPU(); if(codeEl.value) loadProgramFromText(codeEl.value); consoleEl.textContent=''; }
-
-let runInterval = null;
-runBtn.onclick = ()=>{ if(!CPU.code.length) loadProgramFromText(codeEl.value); CPU.running = true; CPU.halted=false; startRunning(); }
-
-function startRunning(){
-  if(runInterval) clearInterval(runInterval);
-  const ms = Math.max(20, parseInt(speedSlider.value));
-  runInterval = setInterval(()=>{
-    if(!CPU.running || CPU.halted){ clearInterval(runInterval); runInterval=null; return; }
-    const ok = stepInstruction(); updateUI();
-    if(!ok || CPU.halted) { CPU.running=false; clearInterval(runInterval); runInterval=null; }
-  }, ms);
-}
-
-document.getElementById('pauseBtn').onclick = ()=>{ CPU.running=false; if(runInterval){ clearInterval(runInterval); runInterval=null; } }
-
-document.getElementById('stopBtn').onclick = ()=>{ CPU.running=false; CPU.halted=true; if(runInterval){ clearInterval(runInterval); runInterval=null; } }
-
 function updateUI(){
   regsDiv.innerHTML = '';
   for(const r of ['AX','BX','CX','DX']){
@@ -518,26 +344,24 @@ function updateUI(){
   zfEl.textContent = CPU.zf? '1':'0'; sfEl.textContent = CPU.sf? '1':'0'; ipEl.textContent = CPU.ip;
 }
 
+resetBtn.onclick = ()=>{ resetCPU(); if(codeEl.value) loadProgramFromText(codeEl.value); consoleEl.textContent=''; }
+
+function runProgram(){
+  CPU.running = true; CPU.halted=false;
+  let interval = setInterval(()=>{
+    if(!CPU.running || CPU.halted){ clearInterval(interval); return; }
+    const ok = stepInstruction(); updateUI();
+    if(!ok || CPU.halted){ CPU.running=false; clearInterval(interval); }
+  }, Math.max(20, parseInt(speedSlider.value)));
+}
+runBtn.onclick = ()=>{ if(!CPU.code.length) loadProgramFromText(codeEl.value); runProgram(); }
+document.getElementById('pauseBtn').onclick = ()=>{ CPU.running=false; }
+document.getElementById('stopBtn').onclick = ()=>{ CPU.running=false; CPU.halted=true; }
+
+downloadBtn.onclick = ()=>{ const blob = new Blob([codeEl.value], {type:'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'program.asm'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+
 loadProgramFromText(codeEl.value);
 updateUI();
-
-downloadBtn.onclick = ()=>{
-  const blob = new Blob([codeEl.value], {type:'text/plain'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = 'program.asm'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-}
-
-morseEl.addEventListener('paste', (e)=>{
-  setTimeout(()=>{
-    const v = morseEl.value.trim();
-    if(/^[-.\s\/]+$/.test(v)){
-    }
-  },10);
-});
-
-window.addEventListener('keydown', (e)=>{
-  if(e.ctrlKey && e.key === 'Enter'){ assembleBtn.click(); e.preventDefault(); }
-});
 </script>
 </body>
 </html>
