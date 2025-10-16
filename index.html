@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>8086 Mini Simulator + Morse ↔ Text Converter</title>
+<title>8086 Mini Simulator + Morse ↔ Text ↔ Assembly</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -17,7 +17,7 @@
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; font-family: 'VT323', monospace; color: var(--muted); background: var(--bg); }
-.container { max-width: 1180px; margin: 20px auto; padding: 18px; display: grid; grid-template-columns: 1fr 420px; gap: 16px; }
+.container { max-width: 1300px; margin: 20px auto; padding: 18px; display: grid; grid-template-columns: 1fr 420px 300px; gap: 16px; }
 .header { grid-column: 1/-1; display: flex; align-items: center; justify-content: space-between; }
 .brand { display: flex; align-items: center; gap: 12px; }
 .logo { width: 44px; height: 44px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--bg); text-shadow: 0 0 5px var(--glow); }
@@ -37,10 +37,10 @@ textarea.code { flex: 1; width: 100%; resize: none; background: var(--bg); borde
 .reg { padding: 6px; border-radius: 0; background: var(--bg); border: 1px solid var(--accent); font-family: 'VT323', monospace; text-shadow: 0 0 2px var(--glow); }
 .console { height: 140px; overflow: auto; font-family: 'VT323', monospace; background: var(--bg); border: 1px solid var(--accent); padding: 8px; border-radius: 0; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
 label { font-size: 14px; color: var(--muted); }
-.switch { display: flex; gap: 6px; align-items: center; }
 .morseBox { display: flex; flex-direction: column; gap: 8px; }
 .morseArea { width: 100%; height: 120px; padding: 8px; border-radius: 0; background: var(--bg); border: 1px solid var(--accent); font-family: 'VT323', monospace; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
 .footerNote { grid-column: 1/-1; color: var(--muted); font-size: 14px; margin-top: 8px; text-shadow: 0 0 2px var(--glow); }
+textarea.asmOutput { height: 180px; resize: none; font-family: 'VT323', monospace; background: var(--bg); border: 1px solid var(--accent); padding: 8px; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
 </style>
 </head>
 <body>
@@ -49,8 +49,8 @@ label { font-size: 14px; color: var(--muted); }
     <div class="brand">
       <div class="logo">86</div>
       <div>
-        <h1>8086 Mini Simulator + Morse ↔ Text</h1>
-        <div class="small">Editable single-file emulator, assembler (subset), live Morse converter</div>
+        <h1>8086 Mini Simulator + Morse ↔ Text ↔ Assembly</h1>
+        <div class="small">Assembler (subset), live Morse converter, Text → ASM generator</div>
       </div>
     </div>
     <div style="text-align:right">
@@ -58,6 +58,7 @@ label { font-size: 14px; color: var(--muted); }
     </div>
   </div>
 
+  <!-- Main Editor -->
   <div>
     <div class="card editor">
       <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:6px">
@@ -68,50 +69,7 @@ label { font-size: 14px; color: var(--muted); }
           <button class="btn ghost" id="resetBtn">Reset</button>
         </div>
       </div>
-      <textarea id="code" class="code" spellcheck="false">; Example: HELLO in Morse
-; . = 46, - = 45, / = 47
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,47
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,47
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,45
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,47
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,45
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,47
-OUT AX
-MOV AX,45
-OUT AX
-MOV AX,45
-OUT AX
-MOV AX,45
-OUT AX
-HLT
-</textarea>
+      <textarea id="code" class="code" spellcheck="false">; Type here or paste generated ASM code</textarea>
       <div class="controls">
         <button class="btn ghost" id="compileBtn">Compile (assemble)</button>
         <button class="btn ghost" id="downloadBtn">Download .asm</button>
@@ -131,6 +89,7 @@ HLT
     </div>
   </div>
 
+  <!-- Side panel: Morse + Registers + Controls -->
   <div class="side">
     <div class="card panel">
       <label class="small">Morse ↔ Text (live)</label>
@@ -167,20 +126,32 @@ HLT
     </div>
   </div>
 
+  <!-- New panel: Text → Assembly -->
+  <div class="side">
+    <div class="card panel">
+      <label class="small">Text → Assembly Generator</label>
+      <textarea id="textInput" class="morseArea" placeholder="Type words or sentence here"></textarea>
+      <textarea id="asmOutput" class="asmOutput" readonly placeholder="Generated assembly will appear here"></textarea>
+      <div style="display:flex;gap:8px; margin-top:4px">
+        <button class="btn" id="generateASM">Generate ASM</button>
+        <button class="btn ghost" id="copyASM">Copy</button>
+        <button class="btn ghost" id="pasteASM">Paste to Editor</button>
+      </div>
+      <div class="small">Generates MOV/OUT instructions for each character (. = 46, - = 45, / = 47, space between letters as 47)</div>
+    </div>
+  </div>
+
   <div class="footerNote">
-    Tips: The assembler supports a small subset: MOV, ADD, SUB, INC, DEC, CMP, JMP, JE, JNE, OUT (prints register or Morse symbols), HLT, LABELS, immediate numbers (decimal) and AX,BX,CX,DX.
-    <br>Created by Anirudh Ramakrishnan
+    Tips: The assembler supports a small subset: MOV, ADD, SUB, INC, DEC, CMP, JMP, JE, JNE, OUT (prints register or Morse symbols), HLT, LABELS, immediate numbers (decimal) and AX,BX,CX,DX.<br>Created by Anirudh Ramakrishnan
   </div>
 </div>
 
 <script>
-const MORSE = {
-  'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..',
-  '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.',
-  '.':'.-.-.-',',':'--..--','?':'..--..','!':'-.-.--','/':'-..-.','(':'-.--.',')':'-.--.-','&':'.-...',':':'---...',';':'-.-.-.','=':'-...-','+':'.-.-.','-':'-....-','_':'..--.-','"':'.-..-.','@':'.--.-.'
-};
-const REV_MORSE = Object.fromEntries(Object.entries(MORSE).map(([k,v]) => [v,k]));
+// Morse definitions
+const MORSE = { 'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..','0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.','.' :'.-.-.-',',':'--..--','?':'..--..','!':'-.-.--','/':'-..-.','(':'-.--.',')':'-.--.-','&':'.-...',':':'---...',';':'-.-.-.','=':'-...-','+':'.-.-.','-':'-....-','_':'..--.-','"':'.-..-.','@':'.--.-.'};
+const REV_MORSE = Object.fromEntries(Object.entries(MORSE).map(([k,v])=>[v,k]));
 
+// Elements
 const codeEl = document.getElementById('code');
 const morseEl = document.getElementById('morseInput');
 const toMorseBtn = document.getElementById('toMorse');
@@ -201,167 +172,72 @@ const speedSlider = document.getElementById('speed');
 const clearConsoleBtn = document.getElementById('clearConsole');
 const downloadBtn = document.getElementById('downloadBtn');
 
-let CPU = {
-  regs: {AX:0,BX:0,CX:0,DX:0},
-  ip:0,
-  zf:false,sf:false,
-  mem: new Array(1024).fill(0),
-  code: [],
-  labels: {},
-  running:false,
-  halted:false
-};
+// Text → ASM
+const textInput = document.getElementById('textInput');
+const asmOutput = document.getElementById('asmOutput');
+const generateASM = document.getElementById('generateASM');
+const copyASM = document.getElementById('copyASM');
+const pasteASM = document.getElementById('pasteASM');
 
-function resetCPU(){
-  CPU.regs = {AX:0,BX:0,CX:0,DX:0};
-  CPU.ip = 0; CPU.zf=false;CPU.sf=false;CPU.mem.fill(0);CPU.running=false;CPU.halted=false;updateUI();
-}
+// CPU simulator
+let CPU = { regs:{AX:0,BX:0,CX:0,DX:0}, ip:0, zf:false,sf:false, mem:new Array(1024).fill(0), code:[], labels:{}, running:false, halted:false };
+
+function resetCPU(){ CPU.regs={AX:0,BX:0,CX:0,DX:0}; CPU.ip=0; CPU.zf=false; CPU.sf=false; CPU.mem.fill(0); CPU.running=false; CPU.halted=false; updateUI(); }
 resetCPU();
 
-function logConsole(...args){
-  consoleEl.textContent += args.join('') + '\n';
-  consoleEl.scrollTop = consoleEl.scrollHeight;
-}
-clearConsoleBtn.onclick = () => {consoleEl.textContent='';}
+function logConsole(...args){ consoleEl.textContent += args.join('')+'\n'; consoleEl.scrollTop = consoleEl.scrollHeight; }
+clearConsoleBtn.onclick = ()=>{ consoleEl.textContent=''; }
 
-function textToMorse(text){
-  return text.toUpperCase().split(' ').map(word=>{
-    return word.split('').map(ch=> MORSE[ch] || '?').join(' ');
-  }).join(' / ');
-}
-function morseToText(morse){
-  morse = morse.replace(/\|/g,' / ');
-  const words = morse.split(/\s{2,}|\s\/\s/).map(w=>w.trim()).filter(Boolean);
-  return words.map(w=> {
-    return w.split(/\s+/).map(sig => REV_MORSE[sig] || '?').join('');
-  }).join(' ');
-}
+// Morse functions
+function textToMorse(text){ return text.toUpperCase().split(' ').map(w=>w.split('').map(c=>MORSE[c]||'?').join(' ')).join(' / '); }
+function morseToText(m){ return m.replace(/\|/g,' / ').split(/\s{2,}|\s\/\s/).map(w=>w.trim()).filter(Boolean).map(w=>w.split(/\s+/).map(s=>REV_MORSE[s]||'?').join('')).join(' '); }
 
 toMorseBtn.onclick = ()=>{ morseEl.value = textToMorse(morseEl.value || codeEl.value); }
 toTextBtn.onclick = ()=>{ morseEl.value = morseToText(morseEl.value); }
 copyMorse.onclick = ()=>{ navigator.clipboard?.writeText(morseEl.value).then(()=>alert('Copied')) }
 pasteToEditor.onclick = ()=>{ codeEl.value = morseToText(morseEl.value); }
 
-function tokenizeLine(line){
-  line = line.replace(/;.*$/,'').trim();
-  if(!line) return null;
-  if(line.endsWith(':')) return {type:'label',label:line.slice(0,-1).trim()};
-  const parts = line.split(/[,\s]+/).filter(Boolean);
-  const op = parts[0].toUpperCase();
-  return {type:'instr',op, args:parts.slice(1)};
-}
-
-function assembleText(text){
-  const lines = text.split('\n');
-  const code = [];
-  const labels = {};
-  let addr = 0;
-  for(let i=0;i<lines.length;i++){
-    const t = tokenizeLine(lines[i]);
-    if(!t) continue;
-    if(t.type==='label'){
-      labels[t.label] = addr;
-    } else { addr += 1; }
-  }
-  for(let i=0;i<lines.length;i++){
-    const t = tokenizeLine(lines[i]);
-    if(!t) continue;
-    if(t.type==='instr'){
-      const op = t.op; const args = t.args;
-      code.push({op,args,srcLine:lines[i]});
-    }
-  }
-  return {code,labels};
-}
-
-function getVal(tok){
-  if(typeof tok === 'number') return tok;
-  if(/^[0-9]+$/.test(tok)) return parseInt(tok,10);
-  tok = tok.toUpperCase();
-  if(CPU.regs.hasOwnProperty(tok)) return CPU.regs[tok];
-  return 0;
-}
-
-function setReg(reg,val){ reg = reg.toUpperCase(); if(CPU.regs.hasOwnProperty(reg)) CPU.regs[reg] = val & 0xFFFF; }
-
-function updateFlagsFrom(val){ CPU.zf = (val===0); CPU.sf = (val < 0); }
-
-function stepInstruction(){
-  if(CPU.halted) return false;
-  const instr = CPU.code[CPU.ip];
-  if(!instr){ CPU.halted=true; return false; }
-  const op = instr.op.toUpperCase();
-  const a = instr.args[0];
-  const b = instr.args[1];
-
-  switch(op){
-    case 'MOV': setReg(a, getVal(b)); CPU.ip++; break;
-    case 'ADD': setReg(a, getVal(a)+getVal(b)); updateFlagsFrom(getVal(a)); CPU.ip++; break;
-    case 'SUB': setReg(a, getVal(a)-getVal(b)); updateFlagsFrom(getVal(a)); CPU.ip++; break;
-    case 'INC': setReg(a, getVal(a)+1); updateFlagsFrom(getVal(a)); CPU.ip++; break;
-    case 'DEC': setReg(a, getVal(a)-1); updateFlagsFrom(getVal(a)); CPU.ip++; break;
-    case 'CMP': { const r = getVal(a)-getVal(b); CPU.zf = (r===0); CPU.sf = (r<0); CPU.ip++; } break;
-    case 'JMP': { CPU.ip = resolveLabelOrNumber(a); } break;
-    case 'JE': { if(CPU.zf){ CPU.ip = resolveLabelOrNumber(a); } else CPU.ip++; } break;
-    case 'JNE': { if(!CPU.zf){ CPU.ip = resolveLabelOrNumber(a); } else CPU.ip++; } break;
-    case 'OUT': {
-      const v = getVal(a);
-      if(v >= 33 && v <= 126){ // printable ASCII
-        consoleEl.textContent += String.fromCharCode(v);
-      } else {
-        consoleEl.textContent += v;
-      }
-      consoleEl.scrollTop = consoleEl.scrollHeight;
-      CPU.ip++;
-    } break;
-    case 'HLT': CPU.halted=true; CPU.running=false; break;
-    default: logConsole('Unknown op:', op); CPU.halted=true; CPU.running=false; break;
-  }
-  return true;
-}
-
-function resolveLabelOrNumber(x){
-  if(!isNaN(parseInt(x))) return parseInt(x);
-  if(CPU.labels && CPU.labels[x]) return CPU.labels[x];
-  const key = Object.keys(CPU.labels).find(k=>k.toUpperCase()===String(x).toUpperCase());
-  if(key) return CPU.labels[key];
-  return 0;
-}
-
-function loadProgramFromText(txt){
-  const {code,labels} = assembleText(txt);
-  CPU.code = code; CPU.labels = labels; CPU.ip = 0; CPU.halted=false; CPU.running=false; updateUI();
-}
+// Tokenize & assemble
+function tokenizeLine(line){ line=line.replace(/;.*$/,'').trim(); if(!line) return null; if(line.endsWith(':')) return {type:'label',label:line.slice(0,-1).trim()}; const parts=line.split(/[,\s]+/).filter(Boolean); return {type:'instr',op:parts[0].toUpperCase(),args:parts.slice(1)}; }
+function assembleText(text){ const lines=text.split('\n'); const code=[]; const labels={}; let addr=0; for(let l of lines){ const t=tokenizeLine(l); if(!t) continue; if(t.type==='label') labels[t.label]=addr; else addr+=1; } for(let l of lines){ const t=tokenizeLine(l); if(!t) continue; if(t.type==='instr') code.push({op:t.op,args:t.args,srcLine:l}); } return {code,labels}; }
+function getVal(tok){ if(typeof tok==='number') return tok; if(/^[0-9]+$/.test(tok)) return parseInt(tok,10); tok=tok.toUpperCase(); if(CPU.regs.hasOwnProperty(tok)) return CPU.regs[tok]; return 0; }
+function setReg(r,v){ r=r.toUpperCase(); if(CPU.regs.hasOwnProperty(r)) CPU.regs[r]=v&0xFFFF; }
+function updateFlagsFrom(v){ CPU.zf=(v===0); CPU.sf=(v<0); }
+function stepInstruction(){ if(CPU.halted) return false; const instr=CPU.code[CPU.ip]; if(!instr){ CPU.halted=true; return false; } const op=instr.op.toUpperCase(); const a=instr.args[0], b=instr.args[1]; switch(op){ case 'MOV': setReg(a,getVal(b)); CPU.ip++; break; case 'ADD': setReg(a,getVal(a)+getVal(b)); updateFlagsFrom(getVal(a)); CPU.ip++; break; case 'SUB': setReg(a,getVal(a)-getVal(b)); updateFlagsFrom(getVal(a)); CPU.ip++; break; case 'INC': setReg(a,getVal(a)+1); updateFlagsFrom(getVal(a)); CPU.ip++; break; case 'DEC': setReg(a,getVal(a)-getVal(b)); updateFlagsFrom(getVal(a)); CPU.ip++; break; case 'CMP': const r=getVal(a)-getVal(b); CPU.zf=(r===0); CPU.sf=(r<0); CPU.ip++; break; case 'JMP': CPU.ip=resolveLabelOrNumber(a); break; case 'JE': if(CPU.zf) CPU.ip=resolveLabelOrNumber(a); else CPU.ip++; break; case 'JNE': if(!CPU.zf) CPU.ip=resolveLabelOrNumber(a); else CPU.ip++; break; case 'OUT': const v=getVal(a); consoleEl.textContent += (v>=33 && v<=126?String.fromCharCode(v):v); consoleEl.scrollTop = consoleEl.scrollHeight; CPU.ip++; break; case 'HLT': CPU.halted=true; CPU.running=false; break; default: logConsole('Unknown op:',op); CPU.halted=true; CPU.running=false; break; } return true; }
+function resolveLabelOrNumber(x){ if(!isNaN(parseInt(x))) return parseInt(x); if(CPU.labels && CPU.labels[x]) return CPU.labels[x]; const key=Object.keys(CPU.labels).find(k=>k.toUpperCase()===String(x).toUpperCase()); return key?CPU.labels[key]:0; }
+function loadProgramFromText(txt){ const {code,labels}=assembleText(txt); CPU.code=code; CPU.labels=labels; CPU.ip=0; CPU.halted=false; CPU.running=false; updateUI(); }
 
 assembleBtn.onclick = ()=>{ loadProgramFromText(codeEl.value); runProgram(); }
-compileBtn.onclick = ()=>{ const {code,labels} = assembleText(codeEl.value); alert('Assembled ' + code.length + ' instructions. Labels: '+Object.keys(labels).join(', ')); }
+compileBtn.onclick = ()=>{ const {code,labels}=assembleText(codeEl.value); alert('Assembled '+code.length+' instructions. Labels: '+Object.keys(labels).join(', ')); }
 
-function updateUI(){
-  regsDiv.innerHTML = '';
-  for(const r of ['AX','BX','CX','DX']){
-    const d = document.createElement('div'); d.className='reg'; d.textContent = r+': ' + CPU.regs[r]; regsDiv.appendChild(d);
-  }
-  zfEl.textContent = CPU.zf? '1':'0'; sfEl.textContent = CPU.sf? '1':'0'; ipEl.textContent = CPU.ip;
-}
+function updateUI(){ regsDiv.innerHTML=''; for(const r of ['AX','BX','CX','DX']){ const d=document.createElement('div'); d.className='reg'; d.textContent=r+': '+CPU.regs[r]; regsDiv.appendChild(d); } zfEl.textContent=CPU.zf?'1':'0'; sfEl.textContent=CPU.sf?'1':'0'; ipEl.textContent=CPU.ip; }
 
 resetBtn.onclick = ()=>{ resetCPU(); if(codeEl.value) loadProgramFromText(codeEl.value); consoleEl.textContent=''; }
 
-function runProgram(){
-  CPU.running = true; CPU.halted=false;
-  let interval = setInterval(()=>{
-    if(!CPU.running || CPU.halted){ clearInterval(interval); return; }
-    const ok = stepInstruction(); updateUI();
-    if(!ok || CPU.halted){ CPU.running=false; clearInterval(interval); }
-  }, Math.max(20, parseInt(speedSlider.value)));
-}
+function runProgram(){ CPU.running=true; CPU.halted=false; let interval=setInterval(()=>{ if(!CPU.running||CPU.halted){ clearInterval(interval); return; } const ok=stepInstruction(); updateUI(); if(!ok||CPU.halted){ CPU.running=false; clearInterval(interval); } }, Math.max(20, parseInt(speedSlider.value))); }
 runBtn.onclick = ()=>{ if(!CPU.code.length) loadProgramFromText(codeEl.value); runProgram(); }
 document.getElementById('pauseBtn').onclick = ()=>{ CPU.running=false; }
 document.getElementById('stopBtn').onclick = ()=>{ CPU.running=false; CPU.halted=true; }
+downloadBtn.onclick = ()=>{ const blob=new Blob([codeEl.value],{type:'text/plain'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='program.asm'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+loadProgramFromText(codeEl.value); updateUI();
 
-downloadBtn.onclick = ()=>{ const blob = new Blob([codeEl.value], {type:'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'program.asm'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+// Text → ASM generator
+const CHAR_MAP = {'.':46,'-':45,'/':47,' ':'47'};
+function generateAssemblyFromText(txt){
+  const lines = [];
+  txt.toUpperCase().split('').forEach(c=>{
+    if(c===' ') lines.push('MOV AX,47','OUT AX');
+    else if(c==='.') lines.push('MOV AX,46','OUT AX');
+    else if(c==='-') lines.push('MOV AX,45','OUT AX');
+    else lines.push('MOV AX,'+c.charCodeAt(0),'OUT AX');
+  });
+  lines.push('HLT');
+  return lines.join('\n');
+}
+generateASM.onclick = ()=>{ asmOutput.value=generateAssemblyFromText(textInput.value); }
+copyASM.onclick = ()=>{ navigator.clipboard?.writeText(asmOutput.value).then(()=>alert('Copied')) }
+pasteASM.onclick = ()=>{ codeEl.value=asmOutput.value; }
 
-loadProgramFromText(codeEl.value);
-updateUI();
 </script>
 </body>
 </html>
