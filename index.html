@@ -3,41 +3,40 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>8086 Mini Simulator + Morse ↔ Text + ASM Generator</title>
+<title>8086 Mini Simulator + Morse Generator</title>
 <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #000;
   --panel: #0a0a0a;
   --muted: #00ff00;
-  --accent: #00cc00;
-  --accent2: #00ff66;
+  --accent: #0f0;
+  --accent2: #0f6;
   --card: #0a0a0a;
-  --glow: #00ff00;
+  --glow: #0f0;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; margin: 0; font-family: 'VT323', monospace; color: var(--muted); background: var(--bg); }
-.container { max-width: 1500px; margin: 20px auto; padding: 18px; display: grid; grid-template-columns: 1fr 420px 420px; gap: 16px; }
+.container { max-width: 1180px; margin: 20px auto; padding: 18px; display: grid; grid-template-columns: 1fr 420px; gap: 16px; }
 .header { grid-column: 1/-1; display: flex; align-items: center; justify-content: space-between; }
 .brand { display: flex; align-items: center; gap: 12px; }
 .logo { width: 44px; height: 44px; background: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--bg); text-shadow: 0 0 5px var(--glow); }
 h1 { font-size: 18px; margin: 0; text-shadow: 0 0 3px var(--glow); }
 .card { background: var(--card); border: 1px solid var(--accent); padding: 12px; border-radius: 0; box-shadow: 0 0 10px var(--glow); }
 .editor { height: 420px; display: flex; flex-direction: column; }
-textarea.code, textarea.morseArea, textarea.asmArea { flex: 1; width: 100%; resize: none; background: var(--bg); border: 1px solid var(--accent); padding: 10px; color: var(--muted); font-family: 'VT323', monospace; font-size:16px; text-shadow:0 0 2px var(--glow);}
-.controls { display:flex; gap:8px; margin-top:8px;}
-.btn { background: var(--accent); border:1px solid var(--accent2); padding:8px 10px; border-radius:0; color:var(--bg); font-weight:600; cursor:pointer; text-shadow:0 0 3px var(--glow);}
-.btn:hover { background: var(--accent2); box-shadow:0 0 5px var(--glow);}
-.btn.ghost { background:transparent; border:1px solid var(--accent); color:var(--muted);}
-.side { display:flex; flex-direction:column; gap:12px;}
-.small { font-size:14px; color:var(--muted); text-shadow:0 0 2px var(--glow);}
-.panel { padding:10px; border-radius:0; background: var(--panel); border:1px solid var(--accent); box-shadow:0 0 5px var(--glow);}
-.row { display:flex; gap:8px;}
-.regs { display:grid; grid-template-columns:repeat(2,1fr); gap:8px;}
-.reg { padding:6px; border-radius:0; background:var(--bg); border:1px solid var(--accent); text-shadow:0 0 2px var(--glow);}
-.console { height:140px; overflow:auto; background:var(--bg); border:1px solid var(--accent); padding:8px; border-radius:0; text-shadow:0 0 2px var(--glow);}
-label { font-size:14px;}
-.footerNote { grid-column:1/-1; font-size:14px; margin-top:8px; text-shadow:0 0 2px var(--glow);}
+textarea.code { flex: 1; width: 100%; resize: none; background: var(--bg); border: 1px solid var(--accent); padding: 10px; color: var(--muted); font-family: 'VT323', monospace; font-size: 16px; text-shadow: 0 0 2px var(--glow); }
+.controls { display: flex; gap: 8px; margin-top: 8px; }
+.btn { background: var(--accent); border: 1px solid var(--accent2); padding: 8px 10px; border-radius: 0; color: var(--bg); font-weight: 600; cursor: pointer; text-shadow: 0 0 3px var(--glow); }
+.btn:hover { background: var(--accent2); box-shadow: 0 0 5px var(--glow); }
+.btn.ghost { background: transparent; border: 1px solid var(--accent); color: var(--muted); }
+.side { display: flex; flex-direction: column; gap: 12px; }
+.small { font-size: 14px; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
+.panel { padding: 10px; border-radius: 0; background: var(--panel); border: 1px solid var(--accent); box-shadow: 0 0 5px var(--glow); }
+.row { display: flex; gap: 8px; }
+.regs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.reg { padding: 6px; border-radius: 0; background: var(--bg); border: 1px solid var(--accent); font-family: 'VT323', monospace; text-shadow: 0 0 2px var(--glow); }
+.console { height: 140px; overflow: auto; font-family: 'VT323', monospace; background: var(--bg); border: 1px solid var(--accent); padding: 8px; border-radius: 0; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
+textarea.morseArea, textarea.generatorArea { width: 100%; height: 120px; padding: 8px; border-radius: 0; background: var(--bg); border: 1px solid var(--accent); font-family: 'VT323', monospace; color: var(--muted); text-shadow: 0 0 2px var(--glow); }
 </style>
 </head>
 <body>
@@ -46,180 +45,121 @@ label { font-size:14px;}
     <div class="brand">
       <div class="logo">86</div>
       <div>
-        <h1>8086 Mini Simulator + Morse ↔ Text + ASM Generator</h1>
-        <div class="small">Editable emulator + live Morse converter + Text → Morse ASM generator</div>
+        <h1>8086 Mini Simulator + Morse Generator</h1>
+        <div class="small">Live Morse generator → assembly → console output</div>
       </div>
     </div>
   </div>
 
-  <!-- Left: Editor + Simulator -->
   <div>
     <div class="card editor">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <label class="small">Assembly editor / Morse input</label>
+      <div style="display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div><label class="small">Assembly editor</label></div>
         <div class="row">
-          <button class="btn" id="assembleBtn">Assemble & Run</button>
-          <button class="btn ghost" id="stepBtn">Step</button>
+          <button class="btn" id="runBtn">Run</button>
           <button class="btn ghost" id="resetBtn">Reset</button>
         </div>
       </div>
-      <textarea id="code" class="code" spellcheck="false">; Example: HELLO in Morse
-; . = 46, - = 45, / = 47
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,47
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,47
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,45
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,47
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,45
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,46
-OUT AX
-MOV AX,47
-OUT AX
-MOV AX,45
-OUT AX
-MOV AX,45
-OUT AX
-MOV AX,45
-OUT AX
-HLT
-</textarea>
-      <div class="controls">
-        <button class="btn ghost" id="compileBtn">Compile (assemble)</button>
-        <button class="btn ghost" id="downloadBtn">Download .asm</button>
-        <div style="flex:1"></div>
-        <label class="small" style="align-self:center">Speed:</label>
-        <input id="speed" type="range" min="50" max="1200" value="300" />
-      </div>
+      <textarea id="code" class="code" spellcheck="false"></textarea>
     </div>
 
     <div style="height:12px"></div>
     <div class="card panel">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <label class="small">Console</label>
+        <div><label class="small">Console</label></div>
         <button class="btn ghost" id="clearConsole">Clear</button>
       </div>
       <pre id="console" class="console"></pre>
     </div>
   </div>
 
-  <!-- Middle: Morse converter -->
-  <div class="side">
-    <div class="card panel">
-      <label class="small">Morse ↔ Text (live)</label>
-      <textarea id="morseInput" class="morseArea" placeholder="Type text or paste Morse (.- -...)"></textarea>
-      <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn" id="toMorse">Text → Morse</button>
-        <button class="btn" id="toText">Morse → Text</button>
-        <button class="btn ghost" id="pasteToEditor">Decode → Editor</button>
-        <button class="btn ghost" id="copyMorse">Copy</button>
-      </div>
-      <div class="small">Letters separated by space, words by <kbd>/</kbd>. Press <kbd>Decode → Editor</kbd> to replace editor text with decoded assembly.</div>
-    </div>
-  </div>
-
-  <!-- Right: Text → Morse ASM generator -->
   <div class="side">
     <div class="card panel">
       <label class="small">Text → Morse Assembly Generator</label>
-      <textarea id="textInput" class="asmArea" placeholder="Type words or sentences here"></textarea>
+      <textarea id="textInput" class="generatorArea" placeholder="Type text here..."></textarea>
       <div style="display:flex;gap:8px;margin-top:6px">
-        <button class="btn" id="generateASM">Generate ASM</button>
-        <button class="btn ghost" id="copyASM">Copy</button>
-        <button class="btn ghost" id="pasteASM">Paste → Editor</button>
+        <button class="btn" id="generateBtn">Generate Assembly</button>
+        <button class="btn ghost" id="copyGenerated">Copy to Editor</button>
       </div>
-      <div class="small">Generates MOV AX,46/45/47 + OUT AX for each Morse symbol. Copy & paste to simulator editor to run.</div>
-      <textarea id="asmOutput" class="asmArea" readonly></textarea>
+      <div class="small">Letters → Morse → MOV AX,x OUT AX. Words separated by /</div>
     </div>
-  </div>
-
-  <div class="footerNote">
-    Tips: . = 46, - = 45, / = 47. Created by Anirudh Ramakrishnan
   </div>
 </div>
 
 <script>
-// Morse table
 const MORSE = {
   'A':'.-','B':'-...','C':'-.-.','D':'-..','E':'.','F':'..-.','G':'--.','H':'....','I':'..','J':'.---','K':'-.-','L':'.-..','M':'--','N':'-.','O':'---','P':'.--.','Q':'--.-','R':'.-.','S':'...','T':'-','U':'..-','V':'...-','W':'.--','X':'-..-','Y':'-.--','Z':'--..',
   '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....','6':'-....','7':'--...','8':'---..','9':'----.'
 };
-const REV_MORSE = Object.fromEntries(Object.entries(MORSE).map(([k,v])=>[v,k]));
+const DOT = 46, DASH = 45, SLASH = 47;
 
-const codeEl=document.getElementById('code');
-const morseEl=document.getElementById('morseInput');
-const toMorseBtn=document.getElementById('toMorse');
-const toTextBtn=document.getElementById('toText');
-const pasteToEditor=document.getElementById('pasteToEditor');
-const copyMorse=document.getElementById('copyMorse');
+const codeEl = document.getElementById('code');
+const consoleEl = document.getElementById('console');
+const textInput = document.getElementById('textInput');
+const generateBtn = document.getElementById('generateBtn');
+const copyGenerated = document.getElementById('copyGenerated');
+const runBtn = document.getElementById('runBtn');
+const resetBtn = document.getElementById('resetBtn');
+const clearConsoleBtn = document.getElementById('clearConsole');
 
-toMorseBtn.onclick=()=>{ morseEl.value=textToMorse(morseEl.value||codeEl.value); }
-toTextBtn.onclick=()=>{ morseEl.value=morseToText(morseEl.value); }
-copyMorse.onclick=()=>{ navigator.clipboard?.writeText(morseEl.value).then(()=>alert('Copied')) }
-pasteToEditor.onclick=()=>{ codeEl.value=morseToText(morseEl.value); }
+let CPU = { regs:{AX:0,BX:0,CX:0,DX:0}, ip:0, zf:false, sf:false, mem:new Array(1024).fill(0), code:[], labels:{}, running:false, halted:false };
 
-function textToMorse(text){
-  return text.toUpperCase().split(' ').map(word=>{
-    return word.split('').map(ch=>MORSE[ch]||'?').join(' ');
-  }).join(' / ');
+function resetCPU(){ CPU.regs={AX:0,BX:0,CX:0,DX:0}; CPU.ip=0; CPU.zf=false; CPU.sf=false; CPU.mem.fill(0); CPU.running=false; CPU.halted=false; consoleEl.textContent=''; }
+clearConsoleBtn.onclick = ()=>{ consoleEl.textContent=''; }
+
+function generateAssembly(text){
+  let asm = "; Generated Morse assembly\n; . = 46, - = 45, / = 47\n";
+  text = text.toUpperCase();
+  for(let word of text.split(' ')){
+    for(let ch of word){
+      const m = MORSE[ch];
+      if(!m) continue;
+      for(let sym of m){
+        asm += `MOV AX,${sym=='.'?DOT:DASH}\nOUT AX\n`;
+      }
+    }
+    asm += `MOV AX,${SLASH}\nOUT AX\n`;
+  }
+  asm += "HLT\n";
+  return asm;
 }
-function morseToText(morse){
-  morse=morse.replace(/\|/g,' / ');
-  const words=morse.split(/\s{2,}|\s\/\s/).map(w=>w.trim()).filter(Boolean);
-  return words.map(w=>w.split(/\s+/).map(sig=>REV_MORSE[sig]||'?').join('')).join(' ');
+
+generateBtn.onclick = ()=>{ codeEl.value = generateAssembly(textInput.value); }
+copyGenerated.onclick = ()=>{ codeEl.value = generateAssembly(textInput.value); }
+
+function getVal(tok){ tok=tok.toString(); if(!isNaN(tok)) return parseInt(tok); if(CPU.regs.hasOwnProperty(tok)) return CPU.regs[tok]; return 0; }
+function setReg(reg,val){ if(CPU.regs.hasOwnProperty(reg)) CPU.regs[reg]=val&0xFFFF; }
+
+function stepInstruction(){
+  if(CPU.halted) return false;
+  const instr = CPU.code[CPU.ip];
+  if(!instr){ CPU.halted=true; CPU.running=false; return false; }
+  const parts = instr.trim().split(/\s+/);
+  switch(parts[0]){
+    case 'MOV':
+      setReg(parts[1].replace(',',''), getVal(parts[2]));
+      break;
+    case 'OUT':
+      let val = getVal(parts[1]);
+      consoleEl.textContent += String.fromCharCode(val);
+      break;
+    case 'HLT':
+      CPU.halted=true; CPU.running=false;
+      break;
+  }
+  CPU.ip++;
+  return true;
 }
 
-// Text → Morse ASM generator
-const textInput=document.getElementById('textInput');
-const asmOutput=document.getElementById('asmOutput');
-const generateASM=document.getElementById('generateASM');
-const copyASM=document.getElementById('copyASM');
-const pasteASM=document.getElementById('pasteASM');
-
-generateASM.onclick=function(){
-  const txt=textInput.value.toUpperCase();
-  const lines=['; Generated Morse Assembly','; . = 46, - = 45, / = 47'];
-  txt.split(' ').forEach((word,widx)=>{
-    word.split('').forEach((ch,cidx)=>{
-      const morse=MORSE[ch]||'';
-      morse.split('').forEach(sym=>{
-        if(sym==='.') lines.push('MOV AX,46','OUT AX');
-        else if(sym==='-') lines.push('MOV AX,45','OUT AX');
-      });
-      if(cidx<word.length-1) lines.push('MOV AX,47','OUT AX'); // letter separator
-    });
-    if(widx<txt.trim().split(' ').length-1) lines.push('MOV AX,47','OUT AX'); // word separator
-  });
-  lines.push('HLT');
-  asmOutput.value=lines.join('\n');
+runBtn.onclick = ()=>{
+  CPU.code = codeEl.value.split('\n');
+  CPU.ip=0; CPU.halted=false; CPU.running=true;
+  consoleEl.textContent='';
+  while(CPU.running) stepInstruction();
 };
-copyASM.onclick=()=>{ navigator.clipboard.writeText(asmOutput.value).then(()=>alert('Copied')) }
-pasteASM.onclick=()=>{ codeEl.value=asmOutput.value; }
 
-// Simulator logic left minimal for brevity (reuse your previous code)
+resetBtn.onclick = resetCPU;
+
 </script>
 </body>
 </html>
