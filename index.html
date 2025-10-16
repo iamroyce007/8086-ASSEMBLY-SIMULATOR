@@ -132,7 +132,6 @@ HLT
   </div>
 
   <div class="side">
-    <!-- Morse ↔ Text -->
     <div class="card panel">
       <label class="small">Morse ↔ Text (live)</label>
       <div class="morseBox">
@@ -144,19 +143,6 @@ HLT
           <button class="btn ghost" id="copyMorse">Copy</button>
         </div>
         <div class="small">Letters separated by space, words by <kbd>/</kbd> or double space. Press <kbd>Decode → Editor</kbd> to replace editor text with decoded assembly.</div>
-      </div>
-    </div>
-
-    <!-- NEW: Text → 8086 Morse Assembly -->
-    <div class="card panel">
-      <label class="small">Text → 8086 Morse</label>
-      <div class="morseBox">
-        <input id="textInput" type="text" placeholder="Type word/phrase" style="width:100%; padding:6px; background:var(--bg); border:1px solid var(--accent); color:var(--muted);" />
-        <div style="display:flex;gap:8px; margin-top:4px;">
-          <button class="btn" id="generateAsm">Generate Assembly → Editor</button>
-          <button class="btn ghost" id="copyAsm">Copy Assembly</button>
-        </div>
-        <div class="small">Generates assembly code for the input text in Morse symbols (., -, /) and pastes into editor.</div>
       </div>
     </div>
 
@@ -313,94 +299,70 @@ function stepInstruction(){
     case 'SUB': setReg(a, getVal(a)-getVal(b)); updateFlagsFrom(getVal(a)); CPU.ip++; break;
     case 'INC': setReg(a, getVal(a)+1); updateFlagsFrom(getVal(a)); CPU.ip++; break;
     case 'DEC': setReg(a, getVal(a)-1); updateFlagsFrom(getVal(a)); CPU.ip++; break;
-    case 'CMP': updateFlagsFrom(getVal(a)-getVal(b)); CPU.ip++; break;
-    case 'JMP': CPU.ip = CPU.labels[a]; break;
-    case 'JE': CPU.ip = CPU.zf ? CPU.labels[a] : CPU.ip+1; break;
-    case 'JNE': CPU.ip = CPU.zf ? CPU.ip+1 : CPU.labels[a]; break;
-    case 'OUT': logConsole(getVal(a)); CPU.ip++; break;
-    case 'HLT': CPU.halted=true; break;
-    default: CPU.ip++; break;
+    case 'CMP': { const r = getVal(a)-getVal(b); CPU.zf = (r===0); CPU.sf = (r<0); CPU.ip++; } break;
+    case 'JMP': { CPU.ip = resolveLabelOrNumber(a); } break;
+    case 'JE': { if(CPU.zf){ CPU.ip = resolveLabelOrNumber(a); } else CPU.ip++; } break;
+    case 'JNE': { if(!CPU.zf){ CPU.ip = resolveLabelOrNumber(a); } else CPU.ip++; } break;
+    case 'OUT': {
+      const v = getVal(a);
+      let outChar = '';
+      if(v === 46) outChar = '.';    // .
+      else if(v === 45) outChar = '-'; // -
+      else if(v === 47) outChar = ' '; // space
+      else if(v >= 33 && v <= 126) outChar = String.fromCharCode(v); // printable ASCII
+      else outChar = v;
+      consoleEl.textContent += outChar;
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+      CPU.ip++;
+    } break;
+    case 'HLT': CPU.halted=true; CPU.running=false; break;
+    default: logConsole('Unknown op:', op); CPU.halted=true; CPU.running=false; break;
   }
-  updateUI(); return true;
+  return true;
 }
 
-function updateUI(){
-  regsDiv.innerHTML = '';
-  for(const r in CPU.regs){
-    const div = document.createElement('div'); div.className='reg'; div.textContent=CPU.regs[r]; regsDiv.appendChild(div);
-  }
-  zfEl.textContent=CPU.zf?1:0;
-  sfEl.textContent=CPU.sf?1:0;
-  ipEl.textContent=CPU.ip;
+function resolveLabelOrNumber(x){
+  if(!isNaN(parseInt(x))) return parseInt(x);
+  if(CPU.labels && CPU.labels[x]) return CPU.labels[x];
+  const key = Object.keys(CPU.labels).find(k=>k.toUpperCase()===String(x).toUpperCase());
+  if(key) return CPU.labels[key];
+  return 0;
 }
 
 function loadProgramFromText(txt){
-  const prog = assembleText(txt);
-  CPU.code = prog.code; CPU.labels = prog.labels; CPU.ip=0; CPU.halted=false; updateUI();
+  const {code,labels} = assembleText(txt);
+  CPU.code = code; CPU.labels = labels; CPU.ip = 0; CPU.halted=false; CPU.running=false; updateUI();
 }
 
-assembleBtn.onclick = ()=>{ loadProgramFromText(codeEl.value); alert('Assembled!'); }
-compileBtn.onclick = ()=>{ loadProgramFromText(codeEl.value); alert('Compiled!'); }
-resetBtn.onclick = ()=>{ resetCPU(); }
+assembleBtn.onclick = ()=>{ loadProgramFromText(codeEl.value); runProgram(); }
+compileBtn.onclick = ()=>{ const {code,labels} = assembleText(codeEl.value); alert('Assembled ' + code.length + ' instructions. Labels: '+Object.keys(labels).join(', ')); }
 
-function runCPU(){
-  CPU.running=true;
-  function loop(){
-    if(!CPU.running) return;
-    if(!stepInstruction()) { CPU.running=false; return; }
-    setTimeout(loop, 1000-speedSlider.value);
+function updateUI(){
+  regsDiv.innerHTML = '';
+  for(const r of ['AX','BX','CX','DX']){
+    const d = document.createElement('div'); d.className='reg'; d.textContent = r+': ' + CPU.regs[r]; regsDiv.appendChild(d);
   }
-  loop();
-}
-runBtn.onclick=()=>{ runCPU(); }
-stepBtn.onclick=()=>{ stepInstruction(); }
-stopBtn.onclick=()=>{ CPU.running=false; }
-
-downloadBtn.onclick=()=>{
-  const blob = new Blob([codeEl.value],{type:'text/plain'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='program.asm'; a.click();
+  zfEl.textContent = CPU.zf? '1':'0'; sfEl.textContent = CPU.sf? '1':'0'; ipEl.textContent = CPU.ip;
 }
 
-// ---------------- NEW: Text → 8086 Morse ----------------
-function generateAssemblyFromText(text) {
-  text = text.toUpperCase().trim();
-  let asm = '';
-  for (let ch of text) {
-    if (ch === ' ') {
-      asm += 'MOV AX,47\nOUT AX\n'; // Space between words
-      continue;
-    }
-    const morse = MORSE[ch];
-    if (!morse) continue;
-    for (let sig of morse) {
-      if (sig === '.') asm += 'MOV AX,46\nOUT AX\n';
-      else if (sig === '-') asm += 'MOV AX,45\nOUT AX\n';
-    }
-    asm += 'MOV AX,47\nOUT AX\n'; // Space between letters
-  }
-  asm += 'HLT\n';
-  return asm;
-}
+resetBtn.onclick = ()=>{ resetCPU(); if(codeEl.value) loadProgramFromText(codeEl.value); consoleEl.textContent=''; }
 
-const generateAsmBtn = document.getElementById('generateAsm');
-const copyAsmBtn = document.getElementById('copyAsm');
-const textInput = document.getElementById('textInput');
-
-generateAsmBtn.onclick = () => {
-  const txt = textInput.value;
-  if (!txt) return alert('Enter some text!');
-  const asmCode = generateAssemblyFromText(txt);
-  codeEl.value = asmCode;
-  loadProgramFromText(asmCode);
-  consoleEl.textContent = '';
+function runProgram(){
+  CPU.running = true; CPU.halted=false;
+  let interval = setInterval(()=>{
+    if(!CPU.running || CPU.halted){ clearInterval(interval); return; }
+    const ok = stepInstruction(); updateUI();
+    if(!ok || CPU.halted){ CPU.running=false; clearInterval(interval); }
+  }, Math.max(20, parseInt(speedSlider.value)));
 }
+runBtn.onclick = ()=>{ if(!CPU.code.length) loadProgramFromText(codeEl.value); runProgram(); }
+document.getElementById('pauseBtn').onclick = ()=>{ CPU.running=false; }
+document.getElementById('stopBtn').onclick = ()=>{ CPU.running=false; CPU.halted=true; }
 
-copyAsmBtn.onclick = () => {
-  const txt = textInput.value;
-  if (!txt) return alert('Enter some text!');
-  const asmCode = generateAssemblyFromText(txt);
-  navigator.clipboard.writeText(asmCode).then(() => alert('Assembly copied!'));
-}
+downloadBtn.onclick = ()=>{ const blob = new Blob([codeEl.value], {type:'text/plain'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'program.asm'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
+
+loadProgramFromText(codeEl.value);
+updateUI();
 </script>
 </body>
 </html>
